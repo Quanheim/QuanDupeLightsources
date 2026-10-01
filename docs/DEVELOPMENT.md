@@ -66,13 +66,11 @@ develop against `Default`**: your server's `BepInEx` folder is a junction into i
    ```powershell
    git clone <repo-url> C:\Dev\Valheim\QuanDupeLightsources
    ```
-3. Rename the stub to the mod's name:
+3. Open the repo folder on its own (`File > Open Folder`), not inside a multi-folder workspace. Then rename the stub to the mod's name:
    - `MyValheimPlugin.csproj` becomes `<ModName>.csproj`. Inside it, set `AssemblyName`, `RootNamespace` and
      `ThunderstoreDescription`.
-   - **Set `RepoUrl`** in the `.csproj` to this repo's GitHub URL, e.g.
-     `https://github.com/<you>/QuanDupeLightsources`. The repo already exists at this point, since you just
-     cloned it. This doesn't depend on Thunderstore: it's the link *from* the Thunderstore page *to* the repo,
-     so players can find the source and raise issues there. The build warns you if it's empty.
+   - Leave `RepoUrl` empty. A Release build fills it from the repo's git remote, so the Thunderstore page
+     links to this repo and its Issues. Set it only if the link should point somewhere else.
    - In `Plugin.cs`, set the `namespace`, `PluginGuid` (`quandru.<ModName>`) and `PluginName`. Leave
      `PluginVersion = PluginInfo.Version` alone. Change `NetworkCompatibility` if the mod is client-only.
    - In `Package\`, write `README.md` (the Thunderstore page), start `CHANGELOG.md`, and replace `icon.png`
@@ -116,7 +114,7 @@ If a path is wrong, the build stops and names the file it couldn't find.
 
 ## 6. Release
 
-1. Check `RepoUrl` is set in the `.csproj` (the build warns if it isn't), then bump `<Version>`. That's the only place it lives: the plugin attribute and `manifest.json`
+1. Bump `<Version>`. That's the only place it lives: the plugin attribute and `manifest.json`
    are both generated from it.
 2. Add a section to the top of `Package\CHANGELOG.md`.
 3. Update the mod's Gale profile and run a final test. The package declares the BepInExPack and Jotunn versions
@@ -142,7 +140,7 @@ How the generated `manifest.json` gets its fields:
 | `name` | `<AssemblyName>`. Letters, digits and underscores only. |
 | `version_number` | `<Version>` |
 | `description` | `<ThunderstoreDescription>`: 250 characters max, and no double quotes, because it isn't JSON-escaped. |
-| `website_url` | `<RepoUrl>`: the mod's GitHub repo, which is where the Thunderstore page's website link goes. |
+| `website_url` | `<RepoUrl>` if set; otherwise the repo's `origin` remote, converted to https, with any embedded credentials and `.git` removed. |
 | `dependencies` | BepInExPack's version, read from the profile's `changelog.txt`; Jotunn's version, read from its `manifest.json` in the profile; and any `<ThunderstoreDependency>` items in the `.csproj`. |
 
 About the BepInExPack heuristic: the pack's `changelog.txt` is a git log listed newest first. Pack versions look

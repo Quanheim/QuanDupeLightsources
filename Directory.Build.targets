@@ -1,7 +1,10 @@
 <!-- Shared build steps: reference checks, version generation, dev deploy, Thunderstore packaging. -->
 <Project>
 
-  <Target Name="CheckValheimReferences" BeforeTargets="ResolveAssemblyReferences">
+  <!-- Skipped in IDE design-time builds so an unconfigured repo (e.g. the template) loads cleanly;
+       real builds still fail with a readable message. -->
+  <Target Name="CheckValheimReferences" BeforeTargets="ResolveAssemblyReferences"
+          Condition="'$(DesignTimeBuild)' != 'true'">
     <Error Condition="'$(GaleProfileDir)' == ''" Text="GaleProfileDir isn't set. Copy Local.props.example to Local.props and fill it in." />
     <Error Condition="!Exists('$(ManagedDir)\assembly_valheim.dll')"
            Text="assembly_valheim.dll not found in '$(ManagedDir)'. Set ValheimDir in Local.props." />
@@ -36,12 +39,28 @@
   <Target Name="PackageThunderstore" AfterTargets="Build" Condition="'$(Configuration)' == 'Release'">
     <Error Condition="'$(ThunderstoreDescription)' == ''"
            Text="Set ThunderstoreDescription in $(MSBuildProjectFile) (max 250 characters, no double quotes)." />
-    <Warning Condition="'$(RepoUrl)' == ''"
-             Text="RepoUrl is empty in $(MSBuildProjectFile): the Thunderstore page won't link to the repo or its issues." />
     <Error Condition="!Exists('$(JotunnManifest)')"
            Text="Jotunn's manifest.json not found at '$(JotunnManifest)'. Set JotunnManifest in Local.props." />
     <Error Condition="'$(BepInExPackDependency)' == '' And !Exists('$(BepInExPackChangelog)')"
            Text="BepInExPack changelog not found at '$(BepInExPackChangelog)'. Set BepInExPackDependency in Local.props." />
+
+    <!-- RepoUrl: explicit value in the .csproj wins; otherwise derive it from the git remote this repo was cloned from. -->
+    <Exec Condition="'$(RepoUrl)' == ''" Command="git config --get remote.origin.url"
+          WorkingDirectory="$(MSBuildProjectDirectory)" ConsoleToMSBuild="true" IgnoreExitCode="true"
+          StandardOutputImportance="low" StandardErrorImportance="low">
+      <Output TaskParameter="ConsoleOutput" PropertyName="_GitRemoteUrl" />
+    </Exec>
+    <PropertyGroup Condition="'$(RepoUrl)' == '' And '$(_GitRemoteUrl)' != ''">
+      <_RepoUrl>$(_GitRemoteUrl.Trim())</_RepoUrl>
+      <!-- git@github.com:Org/Repo.git -> https://github.com/Org/Repo.git -->
+      <_RepoUrl Condition="$(_RepoUrl.StartsWith('git@'))">https://$(_RepoUrl.Substring(4).Replace(':', '/'))</_RepoUrl>
+      <!-- Strip any credentials embedded in an https remote: this URL goes into a PUBLIC manifest -->
+      <_RepoUrl>$([System.Text.RegularExpressions.Regex]::Replace('$(_RepoUrl)', '^(https?://)[^@/]+@', '$1'))</_RepoUrl>
+      <_RepoUrl Condition="$(_RepoUrl.EndsWith('.git'))">$(_RepoUrl.Substring(0, $([MSBuild]::Subtract($(_RepoUrl.Length), 4))))</_RepoUrl>
+      <RepoUrl>$(_RepoUrl)</RepoUrl>
+    </PropertyGroup>
+    <Warning Condition="'$(RepoUrl)' == ''"
+             Text="RepoUrl is empty (not set in $(MSBuildProjectFile) and no git remote found): the Thunderstore page won't link to the repo or its issues." />
 
     <PropertyGroup>
       <PackageStageDir>$(MSBuildProjectDirectory)\obj\package\</PackageStageDir>

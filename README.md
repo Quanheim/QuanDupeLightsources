@@ -1,5 +1,6 @@
-# Valheim plugin template
+# QuanDupeLightsources
 
-Starting point for a BepInEx/Jotunn Valheim plugin with one repo per mod.
+A Valheim plugin that adds **(Always Lit)** duplicates of vanilla fire pieces, for use with NoSmokeStayLit's
+Custom Items Keep Lit list. See `Package/README.md` for the player-facing details.
 
-Create a new repo from this template, then follow `docs/DEVELOPMENT.md`, section 3.
+Building and releasing: see `docs/DEVELOPMENT.md`.

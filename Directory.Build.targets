@@ -1,0 +1,88 @@
+<!-- Shared build steps: reference checks, version generation, dev deploy, Thunderstore packaging. -->
+<Project>
+
+  <Target Name="CheckValheimReferences" BeforeTargets="ResolveAssemblyReferences">
+    <Error Condition="'$(GaleProfileDir)' == ''" Text="GaleProfileDir isn't set. Copy Local.props.example to Local.props and fill it in." />
+    <Error Condition="!Exists('$(ManagedDir)\assembly_valheim.dll')"
+           Text="assembly_valheim.dll not found in '$(ManagedDir)'. Set ValheimDir in Local.props." />
+    <Error Condition="!Exists('$(BepInExDir)\core\BepInEx.dll')"
+           Text="BepInEx.dll not found in '$(BepInExDir)\core'. Check GaleProfileDir and launch the profile once." />
+    <Error Condition="!Exists('$(JotunnDll)')"
+           Text="Jotunn.dll not found at '$(JotunnDll)'. Install Jotunn in this mod's Gale profile." />
+  </Target>
+
+  <!-- Single source of truth for the version: generates PluginInfo.Version from <Version> in the .csproj. -->
+  <Target Name="GeneratePluginInfo" BeforeTargets="CoreCompile">
+    <PropertyGroup>
+      <PluginInfoFile>$(IntermediateOutputPath)PluginInfo.g.cs</PluginInfoFile>
+    </PropertyGroup>
+    <WriteLinesToFile File="$(PluginInfoFile)"
+                      Lines="namespace $(RootNamespace) { internal static class PluginInfo { public const string Version = &quot;$(Version)&quot;%3B } }"
+                      Overwrite="true" WriteOnlyWhenDifferent="true" />
+    <ItemGroup>
+      <Compile Include="$(PluginInfoFile)" />
+      <FileWrites Include="$(PluginInfoFile)" />
+    </ItemGroup>
+  </Target>
+
+  <!-- Debug builds: copy the DLL straight into this mod's Gale profile. -->
+  <Target Name="DeployToGaleProfile" AfterTargets="Build"
+          Condition="'$(Configuration)' == 'Debug' And '$(GaleProfileDir)' != ''">
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(BepInExDir)\plugins\$(AssemblyName)" />
+    <Message Importance="high" Text="Deployed $(AssemblyName).dll to $(BepInExDir)\plugins\$(AssemblyName)" />
+  </Target>
+
+  <!-- Release builds: generate manifest.json and assemble the Thunderstore zip into /dist. -->
+  <Target Name="PackageThunderstore" AfterTargets="Build" Condition="'$(Configuration)' == 'Release'">
+    <Error Condition="'$(ThunderstoreDescription)' == ''"
+           Text="Set ThunderstoreDescription in $(MSBuildProjectFile) (max 250 characters, no double quotes)." />
+    <Warning Condition="'$(RepoUrl)' == ''"
+             Text="RepoUrl is empty in $(MSBuildProjectFile): the Thunderstore page won't link to the repo or its issues." />
+    <Error Condition="!Exists('$(JotunnManifest)')"
+           Text="Jotunn's manifest.json not found at '$(JotunnManifest)'. Set JotunnManifest in Local.props." />
+    <Error Condition="'$(BepInExPackDependency)' == '' And !Exists('$(BepInExPackChangelog)')"
+           Text="BepInExPack changelog not found at '$(BepInExPackChangelog)'. Set BepInExPackDependency in Local.props." />
+
+    <PropertyGroup>
+      <PackageStageDir>$(MSBuildProjectDirectory)\obj\package\</PackageStageDir>
+      <PackageDistDir>$(MSBuildThisFileDirectory)dist\</PackageDistDir>
+
+      <!-- Versions as installed in this mod's Gale profile, i.e. what you actually tested against -->
+      <JotunnPackageVersion>$([System.Text.RegularExpressions.Regex]::Match($([System.IO.File]::ReadAllText('$(JotunnManifest)')), '"version_number"\s*:\s*"([^"]+)"').Groups[1].Value)</JotunnPackageVersion>
+
+      <!-- BepInExPack versions are x.y.NNNN (e.g. 5.4.2351); BepInEx's own are x.y.zz.w (e.g. 5.4.23.5).
+           The changelog is newest-first, so the first x.y.NNNN is the installed pack version. -->
+      <_BepInExPackVersion Condition="'$(BepInExPackDependency)' == ''">$([System.Text.RegularExpressions.Regex]::Match($([System.IO.File]::ReadAllText('$(BepInExPackChangelog)')), '(?&lt;![\d.])\d+\.\d+\.\d{4,}(?![\d.])').Value)</_BepInExPackVersion>
+      <BepInExPackDependency Condition="'$(BepInExPackDependency)' == '' And '$(_BepInExPackVersion)' != ''">denikson-BepInExPack_Valheim-$(_BepInExPackVersion)</BepInExPackDependency>
+    </PropertyGroup>
+
+    <Error Condition="'$(JotunnPackageVersion)' == ''" Text="Couldn't read version_number from '$(JotunnManifest)'." />
+    <Error Condition="'$(BepInExPackDependency)' == ''"
+           Text="Couldn't find a BepInExPack version in '$(BepInExPackChangelog)'. Set BepInExPackDependency in Local.props." />
+
+    <PropertyGroup>
+      <_TsDeps>"$(BepInExPackDependency)", "ValheimModding-Jotunn-$(JotunnPackageVersion)"</_TsDeps>
+      <_TsDeps Condition="'@(ThunderstoreDependency)' != ''">$(_TsDeps), @(ThunderstoreDependency->'"%(Identity)"', ', ')</_TsDeps>
+      <_ManifestJson>{
+  "name": "$(AssemblyName)",
+  "version_number": "$(Version)",
+  "website_url": "$(RepoUrl)",
+  "description": "$(ThunderstoreDescription)",
+  "dependencies": [ $(_TsDeps) ]
+}</_ManifestJson>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ThunderstoreFiles Include="$(MSBuildProjectDirectory)\Package\*" />
+    </ItemGroup>
+    <RemoveDir Directories="$(PackageStageDir)" />
+    <Copy SourceFiles="@(ThunderstoreFiles);$(TargetPath)" DestinationFolder="$(PackageStageDir)" />
+    <WriteLinesToFile File="$(PackageStageDir)manifest.json" Lines="$(_ManifestJson)" Overwrite="true" />
+    <MakeDir Directories="$(PackageDistDir)" />
+    <ZipDirectory SourceDirectory="$(PackageStageDir)"
+                  DestinationFile="$(PackageDistDir)$(AssemblyName)-$(Version).zip" Overwrite="true" />
+    <Message Importance="high" Text="Packaged $(AssemblyName) $(Version)" />
+    <Message Importance="high" Text="  depends on: $(BepInExPackDependency), ValheimModding-Jotunn-$(JotunnPackageVersion) @(ThunderstoreDependency)" />
+  </Target>
+
+</Project>

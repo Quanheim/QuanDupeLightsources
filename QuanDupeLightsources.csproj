@@ -8,7 +8,7 @@
     <Version>1.0.0</Version>
 
     <!-- Thunderstore manifest description: max 250 characters, no double quotes. -->
-    <ThunderstoreDescription>Adds (Always Lit) duplicates of vanilla fire pieces for use with NoSmokeStayLit's Custom Items Keep Lit list.</ThunderstoreDescription>
+    <ThunderstoreDescription>Adds (Always Lit) duplicates of the light sources NoSmokeStayLit can put on a timer, for use with its Custom Items Keep Lit list.</ThunderstoreDescription>
     <!-- Becomes website_url in manifest.json: the Thunderstore page's link to the repo (and its Issues).
          Leave empty to use this repo's git remote automatically; set it only to point somewhere else. -->
     <RepoUrl></RepoUrl>

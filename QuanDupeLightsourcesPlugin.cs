@@ -8,7 +8,7 @@ using Jotunn.Utils;
 namespace QuanDupeLightsources
 {
     /// <summary>
-    /// Registers identical, differently-named copies of NoSmokeStayLit's default fire prefabs.
+    /// Registers identical, differently-named copies of the fire pieces NoSmokeStayLit can put on a timer.
     /// No patches, no runtime logic: lit/fuel/timer state is left entirely to NoSmokeStayLit,
     /// which picks the clones up via its "Custom Items Keep Lit" list.
     /// </summary>
@@ -17,22 +17,21 @@ namespace QuanDupeLightsources
     [NetworkCompatibility(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.Minor)]
     public class QuanDupeLightsourcesPlugin : BaseUnityPlugin
     {
-        public const string PluginGuid = "Quandru.QuanDupeLightsources";
+        public const string PluginGuid = "quandru.QuanDupeLightsources";
         public const string PluginName = "QuanDupeLightsources";
         public const string PluginVersion = PluginInfo.Version; // generated from <Version> in the .csproj
 
         private const string PrefabPrefix = "Quan_";
         private const string NameSuffix = " (Always Lit)";
 
-        // NoSmokeStayLit's default supported objects (fe_<prefab> keys, Thunderstore table).
+        // The pieces NoSmokeStayLit can put on a day/night timer (its "<piece> on timer" settings).
+        // Only these benefit from an always-lit duplicate: everything else NoSmokeStayLit handles is
+        // either always lit or not, with no timer, so a duplicate would behave identically.
         // Hardcoded deliberately: a config-driven list could differ between server and clients,
         // which would leave pieces missing on some machines.
         private static readonly string[] BasePrefabs =
         {
-            "fire_pit",                 // Campfire
-            "bonfire",                  // Bonfire
-            "hearth",                   // Hearth
-            "piece_walltorch",          // Sconce
+            "piece_walltorch",          // Sconce (wall torch)
             "piece_groundtorch",        // Standing iron torch
             "piece_groundtorch_wood",   // Standing wood torch
             "piece_groundtorch_green",  // Standing green-burning iron torch
@@ -40,11 +39,6 @@ namespace QuanDupeLightsources
             "piece_brazierfloor01",     // Standing brazier
             "piece_brazierceiling01",   // Hanging brazier
             "piece_jackoturnip",        // Jack-o-turnip
-            "piece_oven",               // Stone oven
-            "piece_bathtub",            // Hot tub
-            "smelter",                  // Smelter
-            "blastfurnace",             // Blast furnace
-            "eitrrefinery",             // Eitr refinery
         };
 
         private void Awake()

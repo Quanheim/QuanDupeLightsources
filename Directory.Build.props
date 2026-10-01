@@ -8,6 +8,10 @@
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
 
+    <!-- Your Thunderstore team (author prefix). Gale installs packages to BepInEx\plugins\<Team>-<Name>,
+         so dev builds deploy to the same folder and a later Thunderstore install overwrites them cleanly. -->
+    <ThunderstoreTeam Condition="'$(ThunderstoreTeam)' == ''">Quandru</ThunderstoreTeam>
+
     <ValheimDir Condition="'$(ValheimDir)' == ''">C:\Program Files (x86)\Steam\steamapps\common\Valheim</ValheimDir>
     <ManagedDir>$(ValheimDir)\valheim_Data\Managed</ManagedDir>
     <BepInExDir>$(GaleProfileDir)\BepInEx</BepInExDir>

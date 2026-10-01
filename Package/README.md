@@ -1,15 +1,17 @@
 # QuanDupeLightsources
 
-Adds an **(Always Lit)** duplicate of each vanilla fire piece to the Hammer, so you can choose per placement
-whether a light source follows NoSmokeStayLit's day/night timer or stays lit permanently.
+Adds an **(Always Lit)** duplicate of each light source that NoSmokeStayLit can put on a day/night timer, so you
+can choose per placement whether it follows the timer or stays lit permanently. For example, timed torches
+outside and always-lit ones in buildings with no natural light.
 
 This mod only creates the duplicate pieces. All lit, fuel and timer behaviour comes from
 [NoSmokeStayLit](https://thunderstore.io/c/valheim/p/TastyChickenLegs/NoSmokeStayLit/).
 
 ## Duplicated pieces
 
-Campfire, bonfire, hearth, sconce, standing iron/wood/green/blue torches, standing brazier, hanging brazier,
-jack-o-turnip, stone oven, hot tub, smelter, blast furnace and eitr refinery.
+Sconce, standing iron/wood/green/blue torches, standing brazier, hanging brazier and jack-o-turnip: the pieces
+with an "on timer" setting in NoSmokeStayLit. Other fire pieces (campfire, hearth, smelters and so on) have no timer,
+so an always-lit duplicate of them would behave exactly like the original.
 
 Each duplicate has the same recipe, crafting station and build category as the original. Its prefab name is the
 original's with a `Quan_` prefix, e.g. `Quan_piece_groundtorch_wood`.
@@ -17,10 +19,11 @@ original's with a `Quan_` prefix, e.g. `Quan_piece_groundtorch_wood`.
 ## Setup
 
 1. Install on the server **and** every client. Clients without it can't connect.
-2. In NoSmokeStayLit's config, add the duplicates to **Custom Items Keep Lit**:
+2. In NoSmokeStayLit's config, add the duplicates to **Custom Items Keep Lit** (comma-separated, after any
+   existing entries):
 
 ```
-Quan_fire_pit,Quan_bonfire,Quan_hearth,Quan_piece_walltorch,Quan_piece_groundtorch,Quan_piece_groundtorch_wood,Quan_piece_groundtorch_green,Quan_piece_groundtorch_blue,Quan_piece_brazierfloor01,Quan_piece_brazierceiling01,Quan_piece_jackoturnip,Quan_piece_oven,Quan_piece_bathtub,Quan_smelter,Quan_blastfurnace,Quan_eitrrefinery
+Quan_piece_walltorch,Quan_piece_groundtorch,Quan_piece_groundtorch_wood,Quan_piece_groundtorch_green,Quan_piece_groundtorch_blue,Quan_piece_brazierfloor01,Quan_piece_brazierceiling01,Quan_piece_jackoturnip
 ```
 
 3. Leave them out of **Custom Items on Timers**.

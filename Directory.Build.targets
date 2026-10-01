@@ -28,15 +28,9 @@
     </ItemGroup>
   </Target>
 
-  <!-- Debug builds: copy the DLL straight into this mod's Gale profile. -->
-  <Target Name="DeployToGaleProfile" AfterTargets="Build"
-          Condition="'$(Configuration)' == 'Debug' And '$(GaleProfileDir)' != ''">
-    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(BepInExDir)\plugins\$(AssemblyName)" />
-    <Message Importance="high" Text="Deployed $(AssemblyName).dll to $(BepInExDir)\plugins\$(AssemblyName)" />
-  </Target>
-
-  <!-- Release builds: generate manifest.json and assemble the Thunderstore zip into /dist. -->
-  <Target Name="PackageThunderstore" AfterTargets="Build" Condition="'$(Configuration)' == 'Release'">
+  <!-- Stage the complete Thunderstore package (DLL, generated manifest.json, Package\* files) into
+       obj\<Configuration>\package\. Debug deploys it to the Gale profile; Release zips it. Same contents either way. -->
+  <Target Name="StageThunderstorePackage" Condition="'$(DesignTimeBuild)' != 'true'">
     <Error Condition="'$(ThunderstoreDescription)' == ''"
            Text="Set ThunderstoreDescription in $(MSBuildProjectFile) (max 250 characters, no double quotes)." />
     <Error Condition="!Exists('$(JotunnManifest)')"
@@ -59,12 +53,9 @@
       <_RepoUrl Condition="$(_RepoUrl.EndsWith('.git'))">$(_RepoUrl.Substring(0, $([MSBuild]::Subtract($(_RepoUrl.Length), 4))))</_RepoUrl>
       <RepoUrl>$(_RepoUrl)</RepoUrl>
     </PropertyGroup>
-    <Warning Condition="'$(RepoUrl)' == ''"
-             Text="RepoUrl is empty (not set in $(MSBuildProjectFile) and no git remote found): the Thunderstore page won't link to the repo or its issues." />
 
     <PropertyGroup>
-      <PackageStageDir>$(MSBuildProjectDirectory)\obj\package\</PackageStageDir>
-      <PackageDistDir>$(MSBuildThisFileDirectory)dist\</PackageDistDir>
+      <PackageStageDir>$(MSBuildProjectDirectory)\$(IntermediateOutputPath)package\</PackageStageDir>
 
       <!-- Versions as installed in this mod's Gale profile, i.e. what you actually tested against -->
       <JotunnPackageVersion>$([System.Text.RegularExpressions.Regex]::Match($([System.IO.File]::ReadAllText('$(JotunnManifest)')), '"version_number"\s*:\s*"([^"]+)"').Groups[1].Value)</JotunnPackageVersion>
@@ -97,6 +88,30 @@
     <RemoveDir Directories="$(PackageStageDir)" />
     <Copy SourceFiles="@(ThunderstoreFiles);$(TargetPath)" DestinationFolder="$(PackageStageDir)" />
     <WriteLinesToFile File="$(PackageStageDir)manifest.json" Lines="$(_ManifestJson)" Overwrite="true" />
+  </Target>
+
+  <!-- Debug builds: deploy the full staged package into this mod's Gale profile, laid out exactly as a
+       Thunderstore install (BepInEx\plugins\<Team>-<ModName>\), so a later install of the release overwrites it. -->
+  <Target Name="DeployToGaleProfile" AfterTargets="Build" DependsOnTargets="StageThunderstorePackage"
+          Condition="'$(Configuration)' == 'Debug' And '$(GaleProfileDir)' != '' And '$(DesignTimeBuild)' != 'true'">
+    <PropertyGroup>
+      <_DeployDir>$(BepInExDir)\plugins\$(ThunderstoreTeam)-$(AssemblyName)\</_DeployDir>
+    </PropertyGroup>
+    <ItemGroup>
+      <_StagedFiles Include="$(PackageStageDir)*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(_StagedFiles)" DestinationFolder="$(_DeployDir)" />
+    <Message Importance="high" Text="Deployed $(AssemblyName) $(Version) package to $(_DeployDir)" />
+  </Target>
+
+  <!-- Release builds: zip the staged package into /dist for Thunderstore. -->
+  <Target Name="PackageThunderstore" AfterTargets="Build" DependsOnTargets="StageThunderstorePackage"
+          Condition="'$(Configuration)' == 'Release'">
+    <Warning Condition="'$(RepoUrl)' == ''"
+             Text="RepoUrl is empty (not set in $(MSBuildProjectFile) and no git remote found): the Thunderstore page won't link to the repo or its issues." />
+    <PropertyGroup>
+      <PackageDistDir>$(MSBuildThisFileDirectory)dist\</PackageDistDir>
+    </PropertyGroup>
     <MakeDir Directories="$(PackageDistDir)" />
     <ZipDirectory SourceDirectory="$(PackageStageDir)"
                   DestinationFile="$(PackageDistDir)$(AssemblyName)-$(Version).zip" Overwrite="true" />

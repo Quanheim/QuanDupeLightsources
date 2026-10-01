@@ -100,7 +100,11 @@ root.
 3. What happens:
    - The first build restores one NuGet package, so it's slow once.
    - `PluginInfo.Version` is generated from `<Version>`. A red squiggle on it before the first build is normal.
-   - The DLL is compiled to `bin\Debug\` and copied into `<GaleProfileDir>\BepInEx\plugins\<ModName>\`.
+   - The full package (the DLL, a generated `manifest.json`, and `README.md`, `CHANGELOG.md` and `icon.png` from
+     `Package\`) is staged in `obj\Debug\package\`, then copied into
+     `<GaleProfileDir>\BepInEx\plugins\<Team>-<ModName>\`. That's exactly how Gale lays out an installed
+     Thunderstore release, so the dev build is a true rehearsal, and a later install of the release overwrites
+     it instead of loading a second copy. `<Team>` is `ThunderstoreTeam` in `Directory.Build.props`.
 
 If a path is wrong, the build stops and names the file it couldn't find.
 
@@ -124,6 +128,7 @@ If a path is wrong, the build stops and names the file it couldn't find.
    dotnet build -c Release
    ```
    Check the `depends on:` line in the output. It's the dependency list going into the manifest.
+   The zip has the same contents as the Debug deploy you tested, just zipped instead of copied.
 5. Commit, tag and push:
    ```powershell
    git commit -am "Release 1.0.1"
@@ -151,7 +156,8 @@ build uses that instead.
 ## 7. Thunderstore (first release only)
 
 1. Sign in at <https://thunderstore.io> with Discord or GitHub.
-2. Create a **team**. Its name becomes the author prefix, e.g. `Quandru-QuanDupeLightsources`.
+2. Create a **team**. Its name becomes the author prefix, e.g. `Quandru-QuanDupeLightsources`. It must match
+   `ThunderstoreTeam` in `Directory.Build.props`, so dev deploys land in the same folder as installed releases.
 3. Upload at <https://thunderstore.io/c/valheim/create/>, choosing the team and the Valheim community.
 
 Thunderstore packages are public; there's no private option. Once a mod is published, add it to the synced
@@ -167,6 +173,7 @@ server profile in Gale like any other mod.
 | `CS0246: 'Piece' could not be found` | `assembly_valheim` isn't resolving. Check `ValheimDir`. |
 | `PluginInfo` doesn't exist | It's generated during the build. Build once. |
 | Release: `Couldn't find a BepInExPack version` | The pack's changelog format changed. Set `BepInExPackDependency` in `Local.props`. |
+| BepInEx warns about a duplicate plugin GUID | There's an old dev folder alongside the current one, e.g. one from before `ThunderstoreTeam` was set. Delete the stale folder. |
 | Plugin missing from the log | The DLL isn't in that profile's `BepInEx\plugins`, or you launched a different profile. |
 | Kicked on connect with a version mismatch | Server and client have different plugin versions. `VersionStrictness.Minor` means `x.y` must match. |
 | Need a private game field | Add `BepInEx.AssemblyPublicizer.MSBuild` and set `Publicize="true"` on the `assembly_valheim` reference. |

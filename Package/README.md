@@ -22,9 +22,9 @@ original's with a `Quan_` prefix, e.g. `Quan_piece_groundtorch_wood`.
 2. In NoSmokeStayLit's config, add the duplicates to **Custom Items Keep Lit** (comma-separated, after any
    existing entries):
 
-```
-Quan_piece_walltorch,Quan_piece_groundtorch,Quan_piece_groundtorch_wood,Quan_piece_groundtorch_green,Quan_piece_groundtorch_blue,Quan_piece_brazierfloor01,Quan_piece_brazierceiling01,Quan_piece_jackoturnip
-```
+   ```
+   Quan_piece_walltorch,Quan_piece_groundtorch,Quan_piece_groundtorch_wood,Quan_piece_groundtorch_green,Quan_piece_groundtorch_blue,Quan_piece_brazierfloor01,Quan_piece_brazierceiling01,Quan_piece_jackoturnip
+   ```
 
 3. Leave them out of **Custom Items on Timers**.
 

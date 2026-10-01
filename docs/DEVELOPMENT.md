@@ -129,13 +129,13 @@ If a path is wrong, the build stops and names the file it couldn't find.
    ```
    Check the `depends on:` line in the output. It's the dependency list going into the manifest.
    The zip has the same contents as the Debug deploy you tested, just zipped instead of copied.
-5. Commit, tag and push:
+5. Commit, tag and push. The tag must be **annotated** (`-a`): `--follow-tags` silently skips lightweight tags.
    ```powershell
    git commit -am "Release 1.0.1"
-   git tag v1.0.1
+   git tag -a v1.0.1 -m "<ModName> 1.0.1"
    git push --follow-tags
    ```
-6. Upload `dist\<ModName>-<version>.zip` to Thunderstore (see section 7). Optionally, attach the same zip to a
+6. Upload `dist\<Team>-<ModName>-<version>.zip` to Thunderstore (see section 7). Optionally, attach the same zip to a
    GitHub release for the tag.
 
 How the generated `manifest.json` gets its fields:

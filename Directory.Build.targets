@@ -104,7 +104,7 @@
     <Message Importance="high" Text="Deployed $(AssemblyName) $(Version) package to $(_DeployDir)" />
   </Target>
 
-  <!-- Release builds: zip the staged package into /dist for Thunderstore. -->
+  <!-- Release builds: zip the staged package into /dist, named <Team>-<ModName>-<Version>.zip like Thunderstore's own downloads. -->
   <Target Name="PackageThunderstore" AfterTargets="Build" DependsOnTargets="StageThunderstorePackage"
           Condition="'$(Configuration)' == 'Release'">
     <Warning Condition="'$(RepoUrl)' == ''"
@@ -114,7 +114,7 @@
     </PropertyGroup>
     <MakeDir Directories="$(PackageDistDir)" />
     <ZipDirectory SourceDirectory="$(PackageStageDir)"
-                  DestinationFile="$(PackageDistDir)$(AssemblyName)-$(Version).zip" Overwrite="true" />
+                  DestinationFile="$(PackageDistDir)$(ThunderstoreTeam)-$(AssemblyName)-$(Version).zip" Overwrite="true" />
     <Message Importance="high" Text="Packaged $(AssemblyName) $(Version)" />
     <Message Importance="high" Text="  depends on: $(BepInExPackDependency), ValheimModding-Jotunn-$(JotunnPackageVersion) @(ThunderstoreDependency)" />
   </Target>

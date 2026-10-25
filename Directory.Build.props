@@ -20,6 +20,10 @@
     <JotunnManifest Condition="'$(JotunnManifest)' == ''">$(BepInExDir)\plugins\ValheimModding-Jotunn\manifest.json</JotunnManifest>
     <!-- BepInExPack unpacks into the profile root; its changelog.txt is the only record of its version there -->
     <BepInExPackChangelog Condition="'$(BepInExPackChangelog)' == ''">$(GaleProfileDir)\changelog.txt</BepInExPackChangelog>
+
+    <!-- The SDK compiles every .cs file under the repo. research/ (gitignored) holds reference material and
+         samples, so keep it out of the mod's DLL. A mod's .csproj can add more paths the same way. -->
+    <DefaultItemExcludes>$(DefaultItemExcludes);research/**</DefaultItemExcludes>
   </PropertyGroup>
 
   <ItemGroup>
@@ -32,6 +36,8 @@
     <Reference Include="assembly_valheim"><HintPath>$(ManagedDir)\assembly_valheim.dll</HintPath><Private>false</Private></Reference>
     <Reference Include="UnityEngine"><HintPath>$(ManagedDir)\UnityEngine.dll</HintPath><Private>false</Private></Reference>
     <Reference Include="UnityEngine.CoreModule"><HintPath>$(ManagedDir)\UnityEngine.CoreModule.dll</HintPath><Private>false</Private></Reference>
+    <!-- Colliders and other physics types -->
+    <Reference Include="UnityEngine.PhysicsModule"><HintPath>$(ManagedDir)\UnityEngine.PhysicsModule.dll</HintPath><Private>false</Private></Reference>
     <!-- Needed by Jotunn's API surface (e.g. CustomPiece has AssetBundle overloads), even when unused -->
     <Reference Include="UnityEngine.AssetBundleModule"><HintPath>$(ManagedDir)\UnityEngine.AssetBundleModule.dll</HintPath><Private>false</Private></Reference>
     <Reference Include="BepInEx"><HintPath>$(BepInExDir)\core\BepInEx.dll</HintPath><Private>false</Private></Reference>

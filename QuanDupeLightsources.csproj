@@ -5,7 +5,7 @@
     <RootNamespace>QuanDupeLightsources</RootNamespace>
 
     <!-- The ONLY place to bump the version: feeds the plugin attribute and the generated manifest.json -->
-    <Version>1.1.0</Version>
+    <Version>1.1.1</Version>
 
     <!-- Thunderstore manifest description: max 250 characters, no double quotes. -->
     <ThunderstoreDescription>Adds (Always Lit) duplicates of the vanilla and QuanPieces light sources NoSmokeStayLit can put on a timer, for use with its Custom Items Keep Lit list.</ThunderstoreDescription>
@@ -14,12 +14,8 @@
     <RepoUrl></RepoUrl>
   </PropertyGroup>
 
-  <!-- Extra Thunderstore dependencies beyond BepInExPack and Jotunn (both added automatically). Versions come
-       from this mod's Gale profile; add -x.y.z to pin one. -->
-  <ItemGroup>
-    <!-- Its street lights are cloned here; must load first (see BepInDependency in the plugin). -->
-    <ThunderstoreDependency Include="Quandru-QuanPieces" />
-    <!-- The twins exist only to split its lit and timed behaviour. -->
-    <ThunderstoreDependency Include="TastyChickenLegs-NoSmokeStayLit" />
-  </ItemGroup>
+  <!-- No extra Thunderstore dependencies beyond BepInExPack and Jotunn (both added automatically). Since 1.1.1,
+       NoSmokeStayLit and QuanPieces are soft dependencies (load order only, see the plugin), not listed here, so
+       the mod can go on stores that don't carry them (Hexium has no NoSmokeStayLit). -->
+
 </Project>

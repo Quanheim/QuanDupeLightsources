@@ -58,5 +58,6 @@ Not game code, so no script can check these. Test them in game after each update
 | `piece_brazierfloor01` | Cloned. | As above. |
 | `piece_brazierceiling01` | Cloned. | As above. |
 | `piece_jackoturnip` | Cloned. | As above. |
-| QuanPieces `Quan_streetlight_brazier`, `Quan_streetlight_lantern` | Cloned as `..._alwayslit`. | QuanPieces renames them; covered by QuanPieces' own check. |
+| QuanPieces `Quan_streetlight_brazier`, `Quan_streetlight_lantern` | Cloned as `..._alwayslit`, only when QuanPieces (`quandru.QuanPieces`) is loaded (soft dependency since 1.1.1, checked with `Chainloader.PluginInfos`). | QuanPieces renames them; covered by QuanPieces' own check. |
+| NoSmokeStayLit (`TastyChickenLegs.NoSmokeStayLit`, 2.4.4, not game code) | Soft dependency for load order; its absence is only logged. It keeps the duplicates lit by prefab name from its Custom Items Keep Lit list. | Its GUID changes: the load order and the "not installed" log line go wrong; the pieces are unaffected. |
 | Hammer piece table | Clones go in the hammer's `QuanAlwaysLit` tab. | Jotunn's `PieceTables.Hammer` changes. |

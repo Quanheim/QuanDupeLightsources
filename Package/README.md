@@ -5,9 +5,10 @@ can choose per placement whether it follows the timer or stays lit permanently. 
 outside and always-lit ones in buildings with no natural light.
 
 This mod only creates the duplicate pieces. All lit, fuel and timer behaviour comes from
-[NoSmokeStayLit](https://thunderstore.io/c/valheim/p/TastyChickenLegs/NoSmokeStayLit/), which is a required
-dependency and installs alongside this mod. If you just want the street lights as ordinary fuelled pieces, install
-[QuanPieces](https://thunderstore.io/c/valheim/p/Quandru/QuanPieces/) on its own instead.
+[NoSmokeStayLit](https://thunderstore.io/c/valheim/p/TastyChickenLegs/NoSmokeStayLit/). **Install it yourself:**
+since 1.1.1 it isn't a required dependency, so it doesn't install alongside this mod. Without it the duplicates
+still appear, but they work exactly like the originals. If you just want the street lights as ordinary fuelled
+pieces, install [QuanPieces](https://thunderstore.io/c/valheim/p/Quandru/QuanPieces/) on its own instead.
 
 ## Duplicated pieces
 
@@ -18,14 +19,16 @@ name is the original's with a `Quan_` prefix, e.g. `Quan_piece_groundtorch_wood`
 
 **[QuanPieces](https://thunderstore.io/c/valheim/p/Quandru/QuanPieces/):** the Brazier Street Light and the
 Dvergr Street Light. Their duplicates' prefab names have an `_alwayslit` suffix, e.g.
-`Quan_streetlight_brazier_alwayslit`. QuanPieces is also a required dependency and installs alongside this mod.
+`Quan_streetlight_brazier_alwayslit`. These two are added only when QuanPieces is installed (install it yourself;
+it isn't a required dependency since 1.1.1). The vanilla duplicates don't need it.
 
 Each duplicate has the same recipe and crafting station as the original, and they're all together in their own
 **QuanAlwaysLit** tab on the hammer.
 
 ## Setup
 
-1. Install on the server **and** every client. Clients without it can't connect.
+1. Install on the server **and** every client, together with NoSmokeStayLit (and QuanPieces, for the street
+   lights). Clients without this mod can't connect.
 2. In NoSmokeStayLit's config, add the duplicates to **Custom Items Keep Lit** (comma-separated, after any
    existing entries):
 

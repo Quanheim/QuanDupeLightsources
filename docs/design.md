@@ -5,7 +5,7 @@ in `docs/valheim-dependencies.md`. This file holds decisions and open items.
 
 ## Open items
 
-### Soft dependencies instead of hard ones (Quandru, 16 Nov 2026)
+### Done in 1.1.1: soft dependencies instead of hard ones (Quandru, 16 Nov 2026)
 
 **Now (1.1.0):** hard dependencies on NoSmokeStayLit (`TastyChickenLegs-NoSmokeStayLit`) and QuanPieces, as
 `<ThunderstoreDependency>` items in the `.csproj` and, for QuanPieces, a `[BepInDependency]` in the plugin. Because
@@ -28,6 +28,8 @@ NoSmokeStayLit isn't on Hexium, the Publish workflow holds this mod back from He
   players match on the mods they have. A player without QuanPieces can't join a server that has it, so they can't
   end up missing just the street light duplicates.
 
-**Still to do when building:** find NoSmokeStayLit's plugin GUID for the soft dependency (read it from its DLL).
-QuanPieces' is `quandru.QuanPieces`. Update the readmes (the "required dependency" lines), the dependency doc and
-the street light memory.
+**Built in 1.1.1 (16 Nov 2026):** soft dependencies on `quandru.QuanPieces` and `TastyChickenLegs.NoSmokeStayLit`
+(read from NoSmokeStayLit 2.4.4's DLL); street light group gated on `Chainloader.PluginInfos`; both
+`<ThunderstoreDependency>` items removed; readmes, changelog and dependency doc updated. A patch version: no new
+pieces and no change in behaviour (Quandru). Quandru judged the risk negligible and released it without an in-game
+test.

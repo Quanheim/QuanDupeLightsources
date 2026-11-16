@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.1.1 - 2026-11-16
+
+- NoSmokeStayLit and QuanPieces are no longer required dependencies, so they don't install automatically any more:
+  install them yourself. This mod still loads after them when they're there. Nothing else changes: the vanilla
+  duplicates are always added (without NoSmokeStayLit they work like the originals), and the street light
+  duplicates are added whenever QuanPieces is installed. The log says which were added and what's missing.
+- Now on Hexium too, which doesn't carry NoSmokeStayLit.
+
 ## 1.1.0 - 2026-10-26
 
 - Added (Always Lit) duplicates of QuanPieces' street lights: `Quan_streetlight_brazier_alwayslit` and

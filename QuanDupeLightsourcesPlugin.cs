@@ -1,5 +1,6 @@
 using System.Linq;
 using BepInEx;
+using BepInEx.Bootstrap;
 using Jotunn.Configs;
 using Jotunn.Entities;
 using Jotunn.Managers;
@@ -14,8 +15,11 @@ namespace QuanDupeLightsources
     /// </summary>
     [BepInPlugin(PluginGuid, PluginName, PluginVersion)]
     [BepInDependency(Jotunn.Main.ModGuid)]
-    // Hard dependency: QuanPieces loads first, so its pieces are registered before these clone them.
-    [BepInDependency(QuanPiecesGuid)]
+    // Soft dependencies, for load order only (1.1.1). Neither is required: the vanilla duplicates are always
+    // registered (without NoSmokeStayLit they work exactly like the originals), and the street light duplicates are
+    // registered whenever QuanPieces is loaded, after it, so its pieces exist to be cloned.
+    [BepInDependency(QuanPiecesGuid, BepInDependency.DependencyFlags.SoftDependency)]
+    [BepInDependency(NoSmokeStayLitGuid, BepInDependency.DependencyFlags.SoftDependency)]
     [NetworkCompatibility(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.Minor)]
     public class QuanDupeLightsourcesPlugin : BaseUnityPlugin
     {
@@ -24,6 +28,7 @@ namespace QuanDupeLightsources
         public const string PluginVersion = PluginInfo.Version; // generated from <Version> in the .csproj
 
         private const string QuanPiecesGuid = "quandru.QuanPieces";
+        private const string NoSmokeStayLitGuid = "TastyChickenLegs.NoSmokeStayLit";
 
         private const string PrefabPrefix = "Quan_";      // vanilla bases: Quan_<base>
         private const string PrefabSuffix = "_alwayslit";
@@ -69,13 +74,31 @@ namespace QuanDupeLightsources
             // Only ever register once per session.
             PrefabManager.OnVanillaPrefabsAvailable -= AddClones;
 
-            var added = BasePrefabs.Select(b => AddClone(b, PrefabPrefix + b))
-                .Concat(QuanPiecesPrefabs.Select(b => AddClone(b, b + PrefabSuffix)))
-                .Where(name => name != null)
-                .ToList();
+            var added = BasePrefabs.Select(b => AddClone(b, PrefabPrefix + b)).ToList();
 
+            // The street light duplicates are clones of QuanPieces' pieces, so they need QuanPieces loaded.
+            if (Chainloader.PluginInfos.ContainsKey(QuanPiecesGuid))
+            {
+                added.AddRange(QuanPiecesPrefabs.Select(b => AddClone(b, b + PrefabSuffix)));
+            }
+            else
+            {
+                Logger.LogInfo("QuanPieces isn't installed, so its street light duplicates (" +
+                               string.Join(", ", QuanPiecesPrefabs.Select(b => b + PrefabSuffix)) + ") aren't " +
+                               "added. The vanilla duplicates are unaffected. Install QuanPieces to get them.");
+            }
+
+            added.RemoveAll(name => name == null);
             Logger.LogInfo("Light source duplicates registered. Add to NoSmokeStayLit Custom Items Keep Lit: "
                            + string.Join(",", added));
+
+            if (!Chainloader.PluginInfos.ContainsKey(NoSmokeStayLitGuid))
+            {
+                Logger.LogInfo("NoSmokeStayLit isn't installed. The duplicates are still added, but without it they " +
+                               "work exactly like the originals (they burn fuel and have no timer or always-lit " +
+                               "behaviour). Install NoSmokeStayLit and list them under Custom Items Keep Lit to " +
+                               "keep them lit.");
+            }
         }
 
         /// <summary>
